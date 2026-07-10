@@ -1,0 +1,27 @@
+import Link from "next/link";
+import { Metadata } from "next";
+
+import { AuthLayout } from "@/components/auth/auth-layout";
+import { SignInForm } from "@/components/auth/sign-in";
+
+export default function SignInPage() {
+  return (
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to continue to AskYourPdf"
+      footer={
+        <>
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/sign-up"
+            className="font-medium text-primary hover:underline"
+          >
+            Sign up
+          </Link>
+        </>
+      }
+    >
+      <SignInForm />
+    </AuthLayout>
+  );
+}
