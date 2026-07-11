@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/sidebar";
 import { Providers } from "@/components/providers";
-import { ChatTitle } from "@/components/dashboard/chat-title";
+import { ChatTitle } from "@/components/dashboard/chat/chat-title";
 
 const fontSans = Geist({
   subsets: ["latin"],

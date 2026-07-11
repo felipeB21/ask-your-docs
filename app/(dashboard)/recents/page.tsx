@@ -1,4 +1,4 @@
-import RecentChats from "@/components/dashboard/recent-chats";
+import RecentChats from "@/components/dashboard/chat/recent-chats";
 
 export default function RecentsChatsPage() {
   return (
