@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { authProviderSignIn } from "@/actions/auth-providers";
+import { authProviderSignIn } from "@/lib/auth-providers";
 
 function GoogleIcon() {
   return (
