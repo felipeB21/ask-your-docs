@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { InferSelectModel } from "drizzle-orm";
 import type { chats } from "@/db/schema";
 
-type Chat = InferSelectModel<typeof chats>;
+export type Chat = InferSelectModel<typeof chats>;
 
 async function fetchChats(): Promise<Chat[]> {
   const res = await fetch("/api/chats");

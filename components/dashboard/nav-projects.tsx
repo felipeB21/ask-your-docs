@@ -36,7 +36,7 @@ export function NavProjects({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+      <SidebarGroupLabel>Documents</SidebarGroupLabel>
       <SidebarMenu>
         {isLoading
           ? Array.from({ length: 3 }).map((_, i) => (

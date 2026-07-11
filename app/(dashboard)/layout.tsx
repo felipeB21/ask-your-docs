@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/sidebar";
 import { Providers } from "@/components/providers";
+import { ChatTitle } from "@/components/dashboard/chat-title";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -50,7 +51,10 @@ export default async function RootLayout({
           <SidebarProvider>
             <AppSidebar user={user} />
             <SidebarInset>
-              <SidebarTrigger className="px-10 pt-5" />
+              <div className="flex items-center gap-3 px-10 pt-5">
+                <SidebarTrigger />
+                <ChatTitle />
+              </div>
               <main className="p-10">{children}</main>
             </SidebarInset>
           </SidebarProvider>
