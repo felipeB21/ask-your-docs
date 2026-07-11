@@ -8,6 +8,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/sidebar";
+import { Providers } from "@/components/providers";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -45,13 +46,15 @@ export default async function RootLayout({
       <body
         className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased dark`}
       >
-        <SidebarProvider>
-          <AppSidebar user={user} />
-          <SidebarInset>
-            <SidebarTrigger className="px-10 pt-5" />
-            <main className="p-10">{children}</main>
-          </SidebarInset>
-        </SidebarProvider>
+        <Providers>
+          <SidebarProvider>
+            <AppSidebar user={user} />
+            <SidebarInset>
+              <SidebarTrigger className="px-10 pt-5" />
+              <main className="p-10">{children}</main>
+            </SidebarInset>
+          </SidebarProvider>
+        </Providers>
       </body>
     </html>
   );

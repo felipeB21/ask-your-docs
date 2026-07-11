@@ -2,8 +2,10 @@ import mammoth from "mammoth";
 import { PDFParse } from "pdf-parse";
 import { supabase } from "../supabase";
 import { db } from "@/db";
-import { documents } from "@/db/schema";
+import { chunks, documents } from "@/db/schema";
 import { nanoid } from "nanoid";
+import { chunkText } from "./chunk";
+import { generateEmbedding } from "./embed";
 
 interface ProcessDocumentParams {
   buffer: Buffer;
@@ -11,6 +13,13 @@ interface ProcessDocumentParams {
   fileType: "pdf" | "docx";
   userId: string;
   chatId: string;
+}
+
+function sanitizeFileName(fileName: string): string {
+  return fileName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "_");
 }
 
 export async function processDocument({
@@ -36,24 +45,40 @@ export async function processDocument({
     fileType === "pdf"
       ? "application/pdf"
       : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+  const sanitizedFileName = sanitizeFileName(fileName);
+
   const { data, error } = await supabase.storage
     .from("documents")
-    .upload(`${userId}/${fileName}`, buffer, {
+    .upload(`${userId}/${sanitizedFileName}`, buffer, {
       contentType: mimeType,
     });
 
-  if (error) {
-    return error.message;
-  }
+  if (error) return error.message;
+
+  const documentId = nanoid();
 
   await db.insert(documents).values({
-    id: nanoid(),
+    id: documentId,
     fileName: fileName,
     fileType: fileType,
     status: "ready",
     storagePath: data.path,
     chatId: chatId,
   });
+
+  const textChunks = chunkText(extractedText, 1000);
+
+  for (const [i, chunk] of textChunks.entries()) {
+    const embedding = await generateEmbedding(chunk);
+    await db.insert(chunks).values({
+      id: nanoid(),
+      documentId: documentId,
+      content: chunk,
+      embedding: embedding,
+      chunkIndex: i,
+    });
+  }
 
   return extractedText;
 }

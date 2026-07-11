@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, context: Context) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Error al procesar el PDF" },
+      { error: "Error al procesar el archivo" },
       { status: 500 },
     );
   }

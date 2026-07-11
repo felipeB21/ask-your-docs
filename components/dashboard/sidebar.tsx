@@ -2,11 +2,8 @@
 
 import * as React from "react";
 import {
-  Frame,
   LifeBuoy,
-  Map,
   MessagesSquareIcon,
-  PieChart,
   Plus,
   Send,
   Settings2,
@@ -26,57 +23,18 @@ import Logo from "../logo";
 import { NavUser } from "./nav-user";
 import { NavSecondary } from "./nav-secondary";
 import { NavProjects } from "./nav-projects";
+import { useChats } from "@/hooks/use-chats";
 
-const data = {
-  navMain: [
-    {
-      title: "New Chat",
-      url: "new",
-      icon: Plus,
-      isActive: true,
-    },
-    {
-      title: "Chats",
-      url: "recents",
-      icon: MessagesSquareIcon,
-    },
+const navMain = [
+  { title: "New Chat", url: "new", icon: Plus, isActive: true },
+  { title: "Chats", url: "recents", icon: MessagesSquareIcon },
+  { title: "Settings", url: "settings", icon: Settings2 },
+];
 
-    {
-      title: "Settings",
-      url: "settings",
-      icon: Settings2,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-};
+const navSecondary = [
+  { title: "Support", url: "#", icon: LifeBuoy },
+  { title: "Feedback", url: "#", icon: Send },
+];
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: {
@@ -91,6 +49,14 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const { data: chats, isLoading } = useChats();
+
+  const chatItems = (chats ?? []).map((chat) => ({
+    id: chat.id,
+    name: chat.title,
+    url: chat.id,
+  }));
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -101,9 +67,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
+        <NavProjects projects={chatItems} isLoading={isLoading} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
