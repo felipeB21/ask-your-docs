@@ -11,16 +11,8 @@ import { AppSidebar } from "@/components/dashboard/sidebar";
 import { Providers } from "@/components/providers";
 import { ChatTitle } from "@/components/dashboard/chat/chat-title";
 
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
-
-const fontSerif = Lora({
-  subsets: ["latin"],
-  variable: "--font-serif",
-});
-
+const fontSans = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const fontSerif = Lora({ subsets: ["latin"], variable: "--font-serif" });
 const fontMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
@@ -37,9 +29,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   const user = await requireUser();
 
   return (
@@ -48,14 +38,16 @@ export default async function RootLayout({
         className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased dark`}
       >
         <Providers>
-          <SidebarProvider>
+          <SidebarProvider className="h-svh">
             <AppSidebar user={user} />
-            <SidebarInset>
-              <div className="flex items-center gap-3 px-10 pt-5">
+            <SidebarInset className="min-h-0">
+              <div className="flex items-center gap-3 px-10 pt-5 shrink-0">
                 <SidebarTrigger />
                 <ChatTitle />
               </div>
-              <main className="p-10">{children}</main>
+              <main className="p-10 flex-1 min-h-0 overflow-hidden">
+                {children}
+              </main>
             </SidebarInset>
           </SidebarProvider>
         </Providers>

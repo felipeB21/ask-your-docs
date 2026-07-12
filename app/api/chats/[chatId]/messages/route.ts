@@ -5,7 +5,13 @@ import { findRelevantChunks } from "@/lib/documents/search";
 import { db } from "@/db";
 import { chats, messages } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import { createTextStreamResponse, streamText, toTextStream } from "ai";
+import {
+  convertToModelMessages,
+  createTextStreamResponse,
+  streamText,
+  toTextStream,
+  UIMessage,
+} from "ai";
 import { google } from "@ai-sdk/google";
 import { CHAT_MODEL } from "@/lib/ai-config";
 import { nanoid } from "nanoid";
@@ -13,6 +19,11 @@ import { nanoid } from "nanoid";
 type Context = {
   params: Promise<{ chatId: string }>;
 };
+
+function getTextFromMessage(message: UIMessage): string {
+  const textPart = message.parts.find((part) => part.type === "text");
+  return textPart && "text" in textPart ? textPart.text : "";
+}
 
 export async function POST(req: NextRequest, context: Context) {
   try {
@@ -23,11 +34,12 @@ export async function POST(req: NextRequest, context: Context) {
     const userId = session.user.id;
 
     const { chatId } = await context.params;
-    if (!chatId)
+    if (!chatId) {
       return NextResponse.json(
         { error: "No se encontro el parametro chat" },
         { status: 404 },
       );
+    }
 
     const [existingChat] = await db
       .select()
@@ -41,31 +53,36 @@ export async function POST(req: NextRequest, context: Context) {
       );
     }
 
-    const body = await req.json();
-    const { message } = body;
-    if (!message) {
+    const { messages: uiMessages }: { messages: UIMessage[] } =
+      await req.json();
+
+    const lastMessage = uiMessages[uiMessages.length - 1];
+    const question = getTextFromMessage(lastMessage);
+
+    if (!question) {
       return NextResponse.json(
         { error: "Please, write a message" },
-        { status: 404 },
+        { status: 400 },
       );
     }
+
     await db.insert(messages).values({
       id: nanoid(),
       chatId,
-      content: message,
+      content: question,
       role: "user",
     });
 
-    const embedding = await generateEmbedding(message);
+    const embedding = await generateEmbedding(question);
     const relevantChunks = await findRelevantChunks(chatId, embedding);
-
-    const chunkContext = relevantChunks.map((chunk) => chunk.content).join("");
+    const chunkContext = relevantChunks
+      .map((chunk) => chunk.content)
+      .join("\n\n");
 
     const result = streamText({
       model: google(CHAT_MODEL),
-      system:
-        "You are an assistant that answers questions based on the provided document context.",
-      prompt: `Context:\n${chunkContext}\n\nQuestion: ${message}`,
+      system: `You are an assistant that answers questions based on the provided document context.\n\nContext:\n${chunkContext}`,
+      messages: await convertToModelMessages(uiMessages),
       onFinish: async ({ text }) => {
         try {
           await db.insert(messages).values({
@@ -99,11 +116,12 @@ export async function GET(req: NextRequest, context: Context) {
   }
 
   const { chatId } = await context.params;
-  if (!chatId)
+  if (!chatId) {
     return NextResponse.json(
       { error: "No se encontro el parametro chat" },
       { status: 404 },
     );
+  }
 
   const chatMessages = await db
     .select({
@@ -115,8 +133,6 @@ export async function GET(req: NextRequest, context: Context) {
     .from(messages)
     .innerJoin(chats, eq(messages.chatId, chats.id))
     .where(and(eq(chats.id, chatId), eq(chats.userId, session.user.id)));
-
-  console.log(chatMessages);
 
   return NextResponse.json(chatMessages);
 }
