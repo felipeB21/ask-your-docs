@@ -3,7 +3,10 @@ function splitLongParagraph(paragraph: string, maxSize: number): string[] {
   let remaining = paragraph;
 
   while (remaining.length > maxSize) {
-    const lastIndex = remaining.lastIndexOf(".", maxSize);
+    let lastIndex = remaining.lastIndexOf(".", maxSize);
+    if (lastIndex === -1) {
+      lastIndex = maxSize;
+    }
     const piece = remaining.slice(0, lastIndex + 1);
     const rest = remaining.slice(lastIndex + 1);
 
