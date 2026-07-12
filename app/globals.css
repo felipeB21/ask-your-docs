@@ -183,6 +183,17 @@
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
 }
 
+.chat-scroll::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.chat-scroll {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
