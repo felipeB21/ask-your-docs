@@ -91,3 +91,32 @@ export async function POST(req: NextRequest, context: Context) {
     );
   }
 }
+
+export async function GET(req: NextRequest, context: Context) {
+  const session = await getSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const { chatId } = await context.params;
+  if (!chatId)
+    return NextResponse.json(
+      { error: "No se encontro el parametro chat" },
+      { status: 404 },
+    );
+
+  const chatMessages = await db
+    .select({
+      id: messages.id,
+      content: messages.content,
+      role: messages.role,
+      createdAt: messages.createdAt,
+    })
+    .from(messages)
+    .innerJoin(chats, eq(messages.chatId, chats.id))
+    .where(and(eq(chats.id, chatId), eq(chats.userId, session.user.id)));
+
+  console.log(chatMessages);
+
+  return NextResponse.json(chatMessages);
+}
