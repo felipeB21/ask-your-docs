@@ -1,5 +1,5 @@
 import ChatPanel from "@/components/dashboard/chat/chat-panel";
-import { requireUser } from "@/lib/session-helper";
+import DocumentViewer from "@/components/dashboard/document-viewer";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -7,10 +7,9 @@ type PageProps = {
 
 export default async function ChatIdPage({ params }: PageProps) {
   const { id } = await params;
-  await requireUser();
   return (
     <div className="grid grid-cols-2 gap-5 h-full min-h-0">
-      <p>PDF or DOCx render</p>
+      <DocumentViewer chatId={id} />
       <ChatPanel chatId={id} />
     </div>
   );

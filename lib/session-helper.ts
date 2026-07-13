@@ -14,3 +14,5 @@ export const requireUser = async () => {
   }
   return session.user;
 };
+
+export type User = typeof auth.$Infer.Session.user;

@@ -61,9 +61,9 @@ export default function ChatPanel({ chatId }: { chatId: string }) {
           >
             <div
               className={clsx(
-                "rounded-lg whitespace-pre-wrap wrap-break-word",
+                "rounded-lg whitespace-pre-wrap wrap-break-word text-pretty",
                 message.role === "user"
-                  ? "bg-accent-foreground p-2 text-primary-foreground"
+                  ? "bg-accent-foreground p-2 text-primary-foreground max-w-3/4"
                   : "",
               )}
             >
@@ -119,7 +119,7 @@ export default function ChatPanel({ chatId }: { chatId: string }) {
               type="submit"
               disabled={status === "streaming"}
               className="h-8 w-24"
-              variant="outline"
+              variant="default"
             >
               Send
             </InputGroupButton>
