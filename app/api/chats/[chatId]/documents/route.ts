@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session-helper";
 import { db } from "@/db";
 import { chats, documents } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 type Context = {
   params: Promise<{ chatId: string }>;
@@ -38,7 +38,8 @@ export async function GET(req: NextRequest, context: Context) {
     const existingDocuments = await db
       .select()
       .from(documents)
-      .where(eq(documents.chatId, chatId));
+      .where(eq(documents.chatId, chatId))
+      .orderBy(desc(documents.updatedAt));
 
     return NextResponse.json({ data: existingDocuments }, { status: 200 });
   } catch (error) {
