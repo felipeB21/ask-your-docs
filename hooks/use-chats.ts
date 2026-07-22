@@ -8,7 +8,7 @@ export type Chat = InferSelectModel<typeof chats>;
 
 async function fetchChats(): Promise<Chat[]> {
   const res = await fetch("/api/chats");
-  if (!res.ok) throw new Error("Error al cargar los chats");
+  if (!res.ok) throw new Error("Error loading the chats");
   return res.json();
 }
 

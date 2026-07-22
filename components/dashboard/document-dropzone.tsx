@@ -28,7 +28,7 @@ export function DocumentDropzone({
       if (!file) return;
 
       if (!ACCEPTED_TYPES.includes(file.type)) {
-        setError("Solo se aceptan archivos PDF o Word (.docx)");
+        setError("Only PDF or Word (.docx) files are accepted");
         return;
       }
 
@@ -47,7 +47,7 @@ export function DocumentDropzone({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     validateAndSend(e.target.files?.[0]);
-    e.target.value = ""; // permite volver a subir el mismo archivo si hace falta
+    e.target.value = ""; // allow re-uploading the same file if needed
   };
 
   return (
@@ -90,13 +90,13 @@ export function DocumentDropzone({
         <div className="space-y-1">
           <p className="text-sm font-medium">
             {isUploading
-              ? "Subiendo documento..."
+              ? "Uploading document..."
               : isDraggingOver
                 ? "Drop it here!"
                 : "Drag and Drop a document or click to select"}
           </p>
           <p className="text-xs text-muted-foreground">
-            PDF o Word · hasta 10 MB
+            PDF or Word · up to 10 MB
           </p>
         </div>
       </label>

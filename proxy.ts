@@ -1,19 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-const publicRoutes = ["/", "/sign-in", "/sign-up"];
+// Route group (dashboard) — the only part of the app that requires auth.
+const protectedPrefixes = ["/new", "/recents", "/settings", "/upgrade", "/chat"];
 
-export async function proxy(request: NextRequest) {
+// Pages only meant for signed-out visitors; bounce authenticated users to the app.
+const authOnlyRoutes = ["/sign-in", "/sign-up"];
+
+function isProtectedRoute(pathname: string) {
+  return protectedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
+export function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
 
-  const isPublicRoute = publicRoutes.includes(pathname);
-
-  if (!sessionCookie && !isPublicRoute) {
+  if (!sessionCookie && isProtectedRoute(pathname)) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  if (sessionCookie && isPublicRoute) {
+  if (sessionCookie && authOnlyRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL("/new", request.url));
   }
 

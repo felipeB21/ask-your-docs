@@ -10,7 +10,7 @@ export const getSession = async () =>
 export const requireUser = async () => {
   const session = await getSession();
   if (!session?.user) {
-    redirect("/");
+    redirect("/sign-in");
   }
   return session.user;
 };

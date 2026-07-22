@@ -12,14 +12,14 @@ type Context = {
 export async function GET(req: NextRequest, context: Context) {
   const session = await getSession();
   if (!session?.user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
   const userId = session.user.id;
 
   const { id } = await context.params;
   if (!id)
     return NextResponse.json(
-      { error: "No se encontro el documento" },
+      { error: "Document not found" },
       { status: 404 },
     );
 
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, context: Context) {
 
   if (!document)
     return NextResponse.json(
-      { error: "Document not founded" },
+      { error: "Document not found" },
       { status: 404 },
     );
 

@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
     if (!session?.user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const userId = session.user.id;
     const formData = await req.formData();
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     if (!file || !(file instanceof File)) {
       return NextResponse.json(
-        { error: "No se envió ningún archivo" },
+        { error: "No file was sent" },
         { status: 400 },
       );
     }
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Error al procesar el PDF" },
+      { error: "Error processing the PDF" },
       { status: 500 },
     );
   }

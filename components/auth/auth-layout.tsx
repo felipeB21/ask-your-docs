@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
 import { FileText, Quote } from "lucide-react";
-import Link from "next/link";
 import Logo from "../logo";
 
 export function AuthLayout({
@@ -17,17 +15,7 @@ export function AuthLayout({
 }) {
   return (
     <main className="min-h-screen bg-background text-foreground lg:grid lg:grid-cols-2">
-      <aside className="relative hidden lg:block">
-        <Image
-          src="/images/auth-hero.png"
-          alt="Documents transforming into an AI conversation"
-          fill
-          priority
-          sizes="50vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-foreground/70 via-foreground/20 to-transparent" />
-
+      <aside className="relative hidden bg-foreground lg:block">
         <div className="absolute inset-0 flex flex-col justify-between p-10 text-background">
           <Logo />
 

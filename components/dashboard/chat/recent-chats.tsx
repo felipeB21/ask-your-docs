@@ -19,7 +19,7 @@ export default function RecentChats() {
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-2xl font-medium">Chats</h1>
-        <Link href="/" className={buttonVariants()}>
+        <Link href="/new" className={buttonVariants()}>
           New conversation
         </Link>
       </div>

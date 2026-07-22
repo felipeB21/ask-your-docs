@@ -13,14 +13,14 @@ export async function POST(req: NextRequest, context: Context) {
   try {
     const session = await getSession();
     if (!session?.user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const userId = session.user.id;
 
     const { chatId } = await context.params;
     if (!chatId)
       return NextResponse.json(
-        { error: "No se encontro el parametro chat" },
+        { error: "Missing chat parameter" },
         { status: 404 },
       );
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest, context: Context) {
 
     if (!existingChat) {
       return NextResponse.json(
-        { error: "El chat especificado no existe" },
+        { error: "The specified chat does not exist" },
         { status: 404 },
       );
     }
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest, context: Context) {
 
     if (!file || !(file instanceof File)) {
       return NextResponse.json(
-        { error: "No se envió ningún archivo" },
+        { error: "No file was sent" },
         { status: 400 },
       );
     }
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest, context: Context) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Error al procesar el archivo" },
+      { error: "Error processing the file" },
       { status: 500 },
     );
   }

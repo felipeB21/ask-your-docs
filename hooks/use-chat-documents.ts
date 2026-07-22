@@ -8,7 +8,7 @@ export type Documents = InferSelectModel<typeof documents>;
 
 async function fetchChatDocument(chatId: string): Promise<Documents[]> {
   const res = await fetch(`/api/chats/${chatId}/documents`);
-  if (!res.ok) throw new Error("Error al cargar el documento");
+  if (!res.ok) throw new Error("Error loading the document");
   const { data } = await res.json();
   return data;
 }

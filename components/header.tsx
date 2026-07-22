@@ -3,13 +3,13 @@ import Logo from "./logo";
 
 type NavLink = {
   label: string;
-  href?: string;
+  href: string;
 };
 
 const NAV_LINKS: NavLink[] = [
-  { label: "About", href: "/about" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Features", href: "/#capabilities" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Our Team" },
 ];
 
 export default function Header() {
@@ -20,22 +20,16 @@ export default function Header() {
           <Logo />
         </div>
 
-        <nav className="flex-1 flex justify-center">
-          <ul className="flex items-center gap-6">
+        <nav aria-label="Primary" className="flex-1 flex justify-center">
+          <ul className="hidden items-center gap-6 sm:flex">
             {NAV_LINKS.map((link) => (
               <li key={link.label} className="text-sm text-foreground">
-                {link.href ? (
-                  <Link
-                    href={link.href}
-                    className="hover:opacity-80 transition-opacity"
-                  >
-                    {link.label}
-                  </Link>
-                ) : (
-                  <button className="hover:opacity-80 transition-opacity cursor-pointer">
-                    {link.label}
-                  </button>
-                )}
+                <Link
+                  href={link.href}
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  {link.label}
+                </Link>
               </li>
             ))}
           </ul>

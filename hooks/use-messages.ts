@@ -10,7 +10,7 @@ async function fetchChat(chatId: string): Promise<Message[]> {
   const res = await fetch(`/api/chats/${chatId}/messages`);
 
   if (!res.ok) {
-    throw new Error("Error al cargar el chat");
+    throw new Error("Error loading the chat");
   }
 
   return res.json();

@@ -4,7 +4,7 @@ import { generateEmbedding } from "@/lib/documents/embed";
 import { findRelevantChunks } from "@/lib/documents/search";
 import { db } from "@/db";
 import { chats, messages } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import {
   convertToModelMessages,
   createTextStreamResponse,
@@ -29,14 +29,14 @@ export async function POST(req: NextRequest, context: Context) {
   try {
     const session = await getSession();
     if (!session?.user) {
-      return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const userId = session.user.id;
 
     const { chatId } = await context.params;
     if (!chatId) {
       return NextResponse.json(
-        { error: "No se encontro el parametro chat" },
+        { error: "Missing chat parameter" },
         { status: 404 },
       );
     }
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, context: Context) {
 
     if (!existingChat) {
       return NextResponse.json(
-        { error: "El chat especificado no existe" },
+        { error: "The specified chat does not exist" },
         { status: 404 },
       );
     }
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest, context: Context) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Error al generar la respuesta" },
+      { error: "Error generating the response" },
       { status: 500 },
     );
   }
@@ -112,13 +112,13 @@ export async function POST(req: NextRequest, context: Context) {
 export async function GET(req: NextRequest, context: Context) {
   const session = await getSession();
   if (!session?.user) {
-    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const { chatId } = await context.params;
   if (!chatId) {
     return NextResponse.json(
-      { error: "No se encontro el parametro chat" },
+      { error: "Missing chat parameter" },
       { status: 404 },
     );
   }
@@ -132,7 +132,8 @@ export async function GET(req: NextRequest, context: Context) {
     })
     .from(messages)
     .innerJoin(chats, eq(messages.chatId, chats.id))
-    .where(and(eq(chats.id, chatId), eq(chats.userId, session.user.id)));
+    .where(and(eq(chats.id, chatId), eq(chats.userId, session.user.id)))
+    .orderBy(asc(messages.createdAt));
 
   return NextResponse.json(chatMessages);
 }

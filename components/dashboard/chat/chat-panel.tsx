@@ -100,7 +100,7 @@ export default function ChatPanel({ chatId }: { chatId: string }) {
           <TextareaAutosize
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Preguntá algo sobre el documento..."
+            placeholder="Ask something about the document..."
             disabled={status === "streaming"}
             minRows={3}
             maxRows={6}

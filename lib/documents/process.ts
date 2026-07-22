@@ -54,7 +54,7 @@ export async function processDocument({
       contentType: mimeType,
     });
 
-  if (error) return error.message;
+  if (error) throw new Error(error.message);
 
   const documentId = nanoid();
 
