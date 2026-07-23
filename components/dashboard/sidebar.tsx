@@ -33,8 +33,8 @@ const navMain = [
 ];
 
 const navSecondary = [
-  { title: "Support", url: "#", icon: LifeBuoy },
-  { title: "Feedback", url: "#", icon: Send },
+  { title: "Support", url: "support", icon: LifeBuoy },
+  { title: "Feedback", url: "feedback", icon: Send },
 ];
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {

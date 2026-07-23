@@ -1,4 +1,5 @@
 "use client";
+
 import { MoreHorizontal, Star } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,31 +8,47 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useChats } from "@/hooks/use-chats";
 import Link from "next/link";
 import { ChatActionsMenu } from "./chat-actions-menu";
+import { useMemo, useState } from "react";
 
 export default function RecentChats() {
   const { data: chats, isLoading } = useChats();
+  const [search, setSearch] = useState("");
 
-  const sortedChats = [...(chats ?? [])].sort((a, b) =>
-    a.isFavorite === b.isFavorite ? 0 : a.isFavorite ? -1 : 1,
-  );
+  const filteredChats = useMemo(() => {
+    return [...(chats ?? [])]
+      .sort((a, b) =>
+        a.isFavorite === b.isFavorite ? 0 : a.isFavorite ? -1 : 1,
+      )
+      .filter((chat) =>
+        chat.title.toLowerCase().includes(search.toLowerCase().trim()),
+      );
+  }, [chats, search]);
 
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-2xl font-medium">Chats</h1>
+
         <Link href="/new" className={buttonVariants()}>
           New conversation
         </Link>
       </div>
-      <Input className="my-5" placeholder="Search documents..." />
+
+      <Input
+        className="my-5"
+        placeholder="Search chats..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       <ul className="flex flex-col">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => (
               <SidebarMenuItem key={i}>
-                <Skeleton className="h-12 w-full my-2" />
+                <Skeleton className="my-2 h-12 w-full" />
               </SidebarMenuItem>
             ))
-          : sortedChats.map((chat) => (
+          : filteredChats.map((chat) => (
               <li
                 key={chat.id}
                 className="group flex h-14 items-center gap-2 border-b"
@@ -46,6 +63,7 @@ export default function RecentChats() {
                   {chat.isFavorite && (
                     <Star className="size-3.5 shrink-0 fill-amber-500 text-amber-500" />
                   )}
+
                   <span className="truncate">{chat.title}</span>
                 </Link>
 
@@ -56,7 +74,7 @@ export default function RecentChats() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="shrink-0 opacity-0 focus-visible:opacity-100 group-hover:opacity-100"
+                      className="shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                     >
                       <MoreHorizontal />
                       <span className="sr-only">More</span>

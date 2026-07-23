@@ -1,5 +1,6 @@
 import * as React from "react";
 import { type LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 import {
   SidebarGroup,
@@ -28,10 +29,10 @@ export function NavSecondary({
               <SidebarMenuButton
                 size="sm"
                 render={
-                  <a href={item.url}>
+                  <Link href={`/${item.url}`}>
                     <item.icon />
                     <span>{item.title}</span>
-                  </a>
+                  </Link>
                 }
               />
             </SidebarMenuItem>

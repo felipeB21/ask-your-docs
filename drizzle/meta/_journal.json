@@ -29,6 +29,20 @@
       "when": 1784820083137,
       "tag": "0003_natural_prowler",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784848494693,
+      "tag": "0004_fast_jimmy_woo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784850145964,
+      "tag": "0005_clammy_turbo",
+      "breakpoints": true
     }
   ]
 }

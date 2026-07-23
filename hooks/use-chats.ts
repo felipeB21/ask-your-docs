@@ -16,6 +16,7 @@ export function useChats() {
   return useQuery({
     queryKey: ["chats"],
     queryFn: fetchChats,
+    staleTime: 30_000,
   });
 }
 

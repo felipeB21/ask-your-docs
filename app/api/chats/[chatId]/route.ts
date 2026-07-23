@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session-helper";
 import { db } from "@/db";
 import { chats } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { deleteChatDocumentFiles } from "@/lib/documents/storage";
 
 type Context = {
   params: Promise<{ chatId: string }>;
@@ -28,6 +29,10 @@ export async function PATCH(req: NextRequest, context: Context) {
 
   if (title !== undefined && title.length === 0) {
     return NextResponse.json({ error: "Title cannot be empty" }, { status: 400 });
+  }
+
+  if (title !== undefined && title.length > 200) {
+    return NextResponse.json({ error: "Title is too long" }, { status: 400 });
   }
 
   const [existingChat] = await db
@@ -75,6 +80,7 @@ export async function DELETE(req: NextRequest, context: Context) {
     );
   }
 
+  await deleteChatDocumentFiles(chatId);
   await db.delete(chats).where(eq(chats.id, chatId));
 
   return NextResponse.json({ success: true });

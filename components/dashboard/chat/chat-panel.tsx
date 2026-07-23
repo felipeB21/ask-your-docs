@@ -8,6 +8,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -29,14 +30,20 @@ const ChatPanel = forwardRef<ChatPanelHandle, { chatId: string }>(
     const { data: history, isPending } = useMessages(chatId);
     const bottomRef = useRef<HTMLDivElement>(null);
 
+    const transport = useMemo(
+      () => new TextStreamChatTransport({ api: `/api/chats/${chatId}/messages` }),
+      [chatId],
+    );
+
     const { messages, sendMessage, setMessages, status, error } = useChat({
-      transport: new TextStreamChatTransport({
-        api: `/api/chats/${chatId}/messages`,
-      }),
+      transport,
     });
 
+    const seededChatIdRef = useRef<string | null>(null);
+
     useEffect(() => {
-      if (history) {
+      if (history && seededChatIdRef.current !== chatId) {
+        seededChatIdRef.current = chatId;
         setMessages(
           history.map((m) => ({
             id: m.id,
@@ -45,7 +52,7 @@ const ChatPanel = forwardRef<ChatPanelHandle, { chatId: string }>(
           })),
         );
       }
-    }, [history, setMessages]);
+    }, [history, chatId, setMessages]);
 
     useEffect(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,7 +70,11 @@ const ChatPanel = forwardRef<ChatPanelHandle, { chatId: string }>(
 
     return (
       <div className="flex flex-col h-full min-h-0 rounded-xl bg-accent">
-        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 text-sm chat-scroll">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 text-sm chat-scroll"
+          role="log"
+          aria-live="polite"
+        >
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground mt-10">
               Start the conversation by asking something.
@@ -127,6 +138,7 @@ const ChatPanel = forwardRef<ChatPanelHandle, { chatId: string }>(
             <TextareaAutosize
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              aria-label="Message"
               placeholder="Ask something about the document..."
               disabled={status === "streaming"}
               minRows={3}

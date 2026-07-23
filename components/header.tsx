@@ -14,8 +14,8 @@ const NAV_LINKS: NavLink[] = [
 
 export default function Header() {
   return (
-    <header className="fixed top-5 w-full px-10">
-      <div className="max-w-6xl mx-auto rounded-full flex items-center border border-foreground py-3 px-6 bg-primary z-50">
+    <header className="fixed top-5 w-full px-10 z-99">
+      <div className="max-w-6xl mx-auto rounded-full flex items-center border border-foreground py-3 px-6 bg-primary">
         <div className="flex-1 flex justify-start">
           <Logo />
         </div>

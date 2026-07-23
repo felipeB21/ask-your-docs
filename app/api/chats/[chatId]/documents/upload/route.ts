@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { chats } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { checkDocumentLimit } from "@/lib/limits";
+import { validateUploadedFile } from "@/lib/documents/validate";
 
 type Context = {
   params: Promise<{ chatId: string }>;
@@ -61,8 +62,12 @@ export async function POST(req: NextRequest, context: Context) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    const validation = validateUploadedFile(buffer);
+    if ("error" in validation) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
+    const { fileType } = validation;
     const fileName = file.name;
-    const fileType = file.type === "application/pdf" ? "pdf" : "docx";
 
     const text = await processDocument({
       buffer,

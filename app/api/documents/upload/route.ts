@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { processDocument } from "@/lib/documents/process";
 import { chats } from "@/db/schema";
 import { checkDocumentLimit } from "@/lib/limits";
+import { validateUploadedFile } from "@/lib/documents/validate";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,8 +40,12 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
+    const validation = validateUploadedFile(buffer);
+    if ("error" in validation) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
+    const { fileType } = validation;
     const fileName = file.name;
-    const fileType = file.type === "application/pdf" ? "pdf" : "docx";
 
     const chatId = nanoid();
     await db.insert(chats).values({

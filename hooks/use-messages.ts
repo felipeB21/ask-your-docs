@@ -20,5 +20,6 @@ export function useMessages(chatId: string) {
   return useQuery<Message[]>({
     queryKey: ["messages", chatId],
     queryFn: () => fetchChat(chatId),
+    staleTime: 30_000,
   });
 }

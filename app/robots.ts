@@ -6,7 +6,20 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/new", "/recents", "/settings", "/upgrade", "/chat"],
+      disallow: [
+        "/api/",
+        "/new",
+        "/recents",
+        "/settings",
+        "/upgrade",
+        "/chat",
+        "/support",
+        "/feedback",
+        "/sign-in",
+        "/sign-up",
+        "/forgot-password",
+        "/reset-password",
+      ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

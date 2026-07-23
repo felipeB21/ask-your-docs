@@ -94,31 +94,39 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const documents = pgTable("documents", {
-  id: text("id").primaryKey(),
-  fileName: text("file_name").notNull(),
-  fileType: fileTypeEnum("file_type").notNull().default("pdf"),
-  status: documentStatus("status").default("pending"),
-  storagePath: text("storage_path"),
-  chatId: text("chat_id")
-    .notNull()
-    .references(() => chats.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
+export const documents = pgTable(
+  "documents",
+  {
+    id: text("id").primaryKey(),
+    fileName: text("file_name").notNull(),
+    fileType: fileTypeEnum("file_type").notNull().default("pdf"),
+    status: documentStatus("status").default("pending"),
+    storagePath: text("storage_path"),
+    chatId: text("chat_id")
+      .notNull()
+      .references(() => chats.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [index("documents_chatId_idx").on(table.chatId)],
+);
 
-export const chunks = pgTable("chunks", {
-  id: text("id").primaryKey(),
-  documentId: text("document_id")
-    .notNull()
-    .references(() => documents.id, { onDelete: "cascade" }),
-  content: text().notNull(),
-  embedding: vector("embedding", { dimensions: 768 }).notNull(),
-  chunkIndex: integer("chunk_index").notNull(),
-});
+export const chunks = pgTable(
+  "chunks",
+  {
+    id: text("id").primaryKey(),
+    documentId: text("document_id")
+      .notNull()
+      .references(() => documents.id, { onDelete: "cascade" }),
+    content: text().notNull(),
+    embedding: vector("embedding", { dimensions: 768 }).notNull(),
+    chunkIndex: integer("chunk_index").notNull(),
+  },
+  (table) => [index("chunks_documentId_idx").on(table.documentId)],
+);
 
 export const chats = pgTable("chats", {
   id: text("id").primaryKey(),
@@ -134,15 +142,19 @@ export const chats = pgTable("chats", {
     .notNull(),
 });
 
-export const messages = pgTable("messages", {
-  id: text("id").primaryKey(),
-  chatId: text("chat_id")
-    .notNull()
-    .references(() => chats.id, { onDelete: "cascade" }),
-  role: messageRole("role").default("user"),
-  content: text("content"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const messages = pgTable(
+  "messages",
+  {
+    id: text("id").primaryKey(),
+    chatId: text("chat_id")
+      .notNull()
+      .references(() => chats.id, { onDelete: "cascade" }),
+    role: messageRole("role").default("user"),
+    content: text("content"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("messages_chatId_idx").on(table.chatId)],
+);
 
 export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey(),
@@ -161,12 +173,34 @@ export const subscriptions = pgTable("subscriptions", {
     .notNull(),
 });
 
+export const feedback = pgTable(
+  "feedback",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    message: text("message").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("feedback_userId_idx").on(table.userId)],
+);
+
 export const userRelations = relations(user, ({ one, many }) => ({
   sessions: many(session),
   accounts: many(account),
+  feedback: many(feedback),
   subscription: one(subscriptions, {
     fields: [user.id],
     references: [subscriptions.userId],
+  }),
+}));
+
+export const feedbackRelations = relations(feedback, ({ one }) => ({
+  user: one(user, {
+    fields: [feedback.userId],
+    references: [user.id],
   }),
 }));
 

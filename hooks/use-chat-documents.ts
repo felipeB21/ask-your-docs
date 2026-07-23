@@ -17,5 +17,6 @@ export function useChatDocument(chatId: string) {
   return useQuery<Documents[]>({
     queryKey: ["documents", chatId],
     queryFn: () => fetchChatDocument(chatId),
+    staleTime: 30_000,
   });
 }

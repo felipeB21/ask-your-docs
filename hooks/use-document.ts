@@ -20,5 +20,6 @@ export function useDocumentUrl(id: string) {
     queryKey: ["document", id],
     queryFn: () => fetchDocumentUrl(id),
     enabled: !!id,
+    staleTime: 300_000,
   });
 }

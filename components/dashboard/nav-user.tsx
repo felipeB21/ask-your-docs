@@ -14,6 +14,7 @@ import {
 
 import { authClient } from "@/lib/auth-client";
 import type { LimitCheck } from "@/lib/limits";
+import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -38,16 +39,6 @@ interface Notification {
   id: string;
   message: string;
   tone: "alert" | "info";
-}
-
-function getInitials(name: string) {
-  const initials = name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("");
-  return initials.toUpperCase() || "U";
 }
 
 export function NavUser({
@@ -120,7 +111,7 @@ export function NavUser({
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.image!} alt={user.name} />
+                  <AvatarImage src={user.image ?? undefined} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
                     {getInitials(user.name)}
                   </AvatarFallback>
@@ -150,7 +141,7 @@ export function NavUser({
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user.image!} alt={user.name} />
+                    <AvatarImage src={user.image ?? undefined} alt={user.name} />
                     <AvatarFallback className="rounded-lg">
                       {getInitials(user.name)}
                     </AvatarFallback>

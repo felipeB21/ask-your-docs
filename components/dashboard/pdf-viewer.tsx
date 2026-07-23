@@ -12,7 +12,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url,
+).toString();
 
 type SelectionTooltip = {
   text: string;
@@ -145,6 +148,7 @@ export default function PdfViewer({
             className="h-8 w-8"
             onClick={zoomOut}
             disabled={scale <= 0.6}
+            aria-label="Zoom out"
           >
             <ZoomOut className="h-4 w-4" />
           </Button>
@@ -154,6 +158,7 @@ export default function PdfViewer({
             className="h-8 w-8"
             onClick={zoomIn}
             disabled={scale >= 2}
+            aria-label="Zoom in"
           >
             <ZoomIn className="h-4 w-4" />
           </Button>
@@ -166,6 +171,7 @@ export default function PdfViewer({
             className="h-8 w-8"
             onClick={goToPrevPage}
             disabled={pageNumber <= 1}
+            aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -178,6 +184,7 @@ export default function PdfViewer({
             className="h-8 w-8"
             onClick={goToNextPage}
             disabled={!numPages || pageNumber >= numPages}
+            aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

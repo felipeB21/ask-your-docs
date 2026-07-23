@@ -4,6 +4,7 @@ import "../globals.css";
 import { requireUser } from "@/lib/session-helper";
 import { getSubscription, isProStatus } from "@/lib/subscription";
 import { checkDocumentLimit, checkMessageLimit } from "@/lib/limits";
+import { getTheme } from "@/lib/theme";
 import {
   SidebarInset,
   SidebarProvider,
@@ -37,17 +38,18 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await requireUser();
-  const [subscription, documentLimit, messageLimit] = await Promise.all([
+  const [subscription, documentLimit, messageLimit, theme] = await Promise.all([
     getSubscription(user.id),
     checkDocumentLimit(user.id),
     checkMessageLimit(user.id),
+    getTheme(),
   ]);
   const plan = isProStatus(subscription?.status) ? "pro" : "free";
 
   return (
-    <html lang="en">
+    <html lang="en" className={theme === "dark" ? "dark" : ""}>
       <body
-        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased dark`}
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}
       >
         <Providers>
           <SidebarProvider className="h-svh">

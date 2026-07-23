@@ -63,6 +63,7 @@ export default function DocxViewer({ url }: { url: string }) {
             className="h-8 w-8"
             onClick={zoomOut}
             disabled={scale <= 0.6}
+            aria-label="Zoom out"
           >
             <ZoomOut className="h-4 w-4" />
           </Button>
@@ -72,6 +73,7 @@ export default function DocxViewer({ url }: { url: string }) {
             className="h-8 w-8"
             onClick={zoomIn}
             disabled={scale >= 1.5}
+            aria-label="Zoom in"
           >
             <ZoomIn className="h-4 w-4" />
           </Button>

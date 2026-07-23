@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 // Route group (dashboard) — the only part of the app that requires auth.
-const protectedPrefixes = ["/new", "/recents", "/settings", "/upgrade", "/chat"];
+const protectedPrefixes = [
+  "/new",
+  "/recents",
+  "/settings",
+  "/upgrade",
+  "/chat",
+  "/support",
+  "/feedback",
+];
 
 // Pages only meant for signed-out visitors; bounce authenticated users to the app.
 const authOnlyRoutes = ["/", "/sign-in", "/sign-up"];

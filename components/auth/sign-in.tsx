@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
+import { authClient } from "@/lib/auth-client";
+import { signInSchema } from "@/lib/auth-validation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,14 +14,42 @@ import { Label } from "@/components/ui/label";
 import { OAuthButtons, OAuthDivider } from "@/components/auth/oauth-buttons";
 
 export function SignInForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoading(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    setTimeout(() => setLoading(false), 1200);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFormError(null);
+
+    const result = signInSchema.safeParse({ email, password });
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const key = issue.path[0] as string;
+        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+      }
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+
+    setLoading(true);
+    const { error } = await authClient.signIn.email({ email, password });
+    setLoading(false);
+
+    if (error) {
+      setFormError(error.message ?? "Could not sign you in.");
+      return;
+    }
+
+    router.push("/new");
   }
 
   return (
@@ -25,7 +57,7 @@ export function SignInForm() {
       <CardContent className="pt-6">
         <OAuthButtons />
         <OAuthDivider />
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -34,19 +66,28 @@ export function SignInForm() {
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
-              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              disabled={loading}
             />
+            {errors.email && (
+              <p id="email-error" role="alert" className="text-xs text-destructive">
+                {errors.email}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <a
-                href="#"
+              <Link
+                href="/forgot-password"
                 className="text-xs font-medium text-primary hover:underline"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <div className="relative">
               <Input
@@ -55,7 +96,11 @@ export function SignInForm() {
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 placeholder="Enter your password"
-                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
+                disabled={loading}
                 className="pr-9"
               />
               <button
@@ -71,7 +116,18 @@ export function SignInForm() {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p id="password-error" role="alert" className="text-xs text-destructive">
+                {errors.password}
+              </p>
+            )}
           </div>
+
+          {formError && (
+            <p role="alert" className="text-xs text-destructive">
+              {formError}
+            </p>
+          )}
 
           <Button
             type="submit"

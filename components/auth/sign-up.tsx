@@ -1,26 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Eye, EyeOff, Loader2, X } from "lucide-react";
 
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OAuthButtons, OAuthDivider } from "@/components/auth/oauth-buttons";
-import { emailStepSchema, signUpSchema } from "@/lib/auth-validation";
+import { emailStepSchema, passwordRules, signUpSchema } from "@/lib/auth-validation";
 import { cn } from "@/lib/utils";
 
-const passwordRules = [
-  { label: "At least 8 characters", test: (v: string) => v.length >= 8 },
-  { label: "One letter", test: (v: string) => /[a-zA-Z]/.test(v) },
-  {
-    label: "One special character",
-    test: (v: string) => /[^a-zA-Z0-9]/.test(v),
-  },
-];
-
 export function SignUpForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"email" | "details">("email");
@@ -30,6 +24,7 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
 
   function handleContinue(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,8 +37,10 @@ export function SignUpForm() {
     setStep("details");
   }
 
-  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    setFormError(null);
+
     const result = signUpSchema.safeParse({ name, email, password });
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -55,9 +52,17 @@ export function SignUpForm() {
       return;
     }
     setErrors({});
+
     setLoading(true);
-    // Simulate an async request — wire this up to your auth backend.
-    setTimeout(() => setLoading(false), 1200);
+    const { error } = await authClient.signUp.email({ name, email, password });
+    setLoading(false);
+
+    if (error) {
+      setFormError(error.message ?? "Could not create your account.");
+      return;
+    }
+
+    router.push("/new");
   }
 
   return (
@@ -83,9 +88,12 @@ export function SignUpForm() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "email-error" : undefined}
                 />
                 {errors.email && (
-                  <p className="text-xs text-destructive">{errors.email}</p>
+                  <p id="email-error" role="alert" className="text-xs text-destructive">
+                    {errors.email}
+                  </p>
                 )}
               </div>
 
@@ -103,7 +111,8 @@ export function SignUpForm() {
             <button
               type="button"
               onClick={() => setStep("email")}
-              className="flex items-center gap-1.5 self-start text-sm text-muted-foreground hover:text-foreground"
+              disabled={loading}
+              className="flex items-center gap-1.5 self-start text-sm text-muted-foreground hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
             >
               <ArrowLeft className="size-4" />
               {email}
@@ -120,10 +129,14 @@ export function SignUpForm() {
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "name-error" : undefined}
+                disabled={loading}
                 autoFocus
               />
               {errors.name && (
-                <p className="text-xs text-destructive">{errors.name}</p>
+                <p id="name-error" role="alert" className="text-xs text-destructive">
+                  {errors.name}
+                </p>
               )}
             </div>
 
@@ -139,6 +152,8 @@ export function SignUpForm() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   aria-invalid={!!errors.password}
+                  aria-describedby="password-rules"
+                  disabled={loading}
                   className="pr-9"
                 />
                 <button
@@ -155,7 +170,7 @@ export function SignUpForm() {
                 </button>
               </div>
 
-              <ul className="mt-1 flex flex-col gap-1">
+              <ul id="password-rules" aria-live="polite" className="mt-1 flex flex-col gap-1">
                 {passwordRules.map((rule) => {
                   const passed = rule.test(password);
                   return (
@@ -177,6 +192,12 @@ export function SignUpForm() {
                 })}
               </ul>
             </div>
+
+            {formError && (
+              <p role="alert" className="text-xs text-destructive">
+                {formError}
+              </p>
+            )}
 
             <Button
               type="submit"

@@ -16,7 +16,8 @@ interface ProcessDocumentParams {
 }
 
 function sanitizeFileName(fileName: string): string {
-  return fileName
+  const baseName = fileName.split(/[/\\]+/).pop() || "file";
+  return baseName
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, "_");
