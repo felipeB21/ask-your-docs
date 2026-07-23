@@ -14,7 +14,13 @@ const PdfViewer = dynamic(() => import("./pdf-viewer"), {
   ),
 });
 
-export default function DocumentViewer({ chatId }: { chatId: string }) {
+export default function DocumentViewer({
+  chatId,
+  onExplain,
+}: {
+  chatId: string;
+  onExplain?: (text: string) => void;
+}) {
   const { data: chatDocuments, isPending: isLoadingDocuments } =
     useChatDocument(chatId);
 
@@ -50,7 +56,7 @@ export default function DocumentViewer({ chatId }: { chatId: string }) {
   }
 
   if (documentUrl.fileType === "pdf") {
-    return <PdfViewer url={documentUrl.data.signedUrl} />;
+    return <PdfViewer url={documentUrl.data.signedUrl} onExplain={onExplain} />;
   }
 
   return (
