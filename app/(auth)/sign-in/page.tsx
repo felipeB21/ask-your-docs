@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { SignInForm } from "@/components/auth/sign-in";
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: "Sign in to your AskYourDocs account.",
+};
 
 export default function SignInPage() {
   return (

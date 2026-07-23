@@ -1,8 +1,33 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { FREE_DOCUMENT_LIMIT, FREE_MESSAGE_LIMIT } from "@/lib/limits";
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo";
+
+const PRICING_DESCRIPTION = `Simple, transparent pricing for ${SITE_NAME}. Start free with ${FREE_DOCUMENT_LIMIT} document uploads and ${FREE_MESSAGE_LIMIT} AI messages a day, or go unlimited on Pro for $4.99/month.`;
+const PRICING_TITLE = `Pricing | ${SITE_NAME}`;
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description: PRICING_DESCRIPTION,
+  alternates: {
+    canonical: "/pricing",
+  },
+  // openGraph/twitter don't deep-merge with the layout's defaults — repeat images here.
+  openGraph: {
+    url: `${SITE_URL}/pricing`,
+    title: PRICING_TITLE,
+    description: PRICING_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    title: PRICING_TITLE,
+    description: PRICING_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE.url],
+  },
+};
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (

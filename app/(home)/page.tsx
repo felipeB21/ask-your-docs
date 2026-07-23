@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -12,6 +13,72 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { HeroVisual } from "@/components/home/hero-visual";
+import { JsonLd } from "@/components/seo/json-ld";
+import { DEFAULT_OG_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { FREE_DOCUMENT_LIMIT, FREE_MESSAGE_LIMIT } from "@/lib/limits";
+
+const TITLE = "Chat with your PDFs and Word documents";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  // openGraph/twitter don't deep-merge with the layout's defaults — repeat images here.
+  openGraph: {
+    url: SITE_URL,
+    title: `${SITE_NAME} — ${TITLE}`,
+    description: SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: {
+    title: `${SITE_NAME} — ${TITLE}`,
+    description: SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE.url],
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.png`,
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  url: SITE_URL,
+};
+
+const softwareApplicationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: SITE_NAME,
+  url: SITE_URL,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description: SITE_DESCRIPTION,
+  offers: [
+    {
+      "@type": "Offer",
+      name: "Free",
+      price: "0",
+      priceCurrency: "USD",
+      description: `${FREE_DOCUMENT_LIMIT} document uploads and ${FREE_MESSAGE_LIMIT} AI messages per day`,
+    },
+    {
+      "@type": "Offer",
+      name: "Pro",
+      price: "4.99",
+      priceCurrency: "USD",
+      description: "Unlimited document uploads and AI messages",
+    },
+  ],
+};
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -84,6 +151,10 @@ const capabilities = [
 export default function Home() {
   return (
     <>
+      <JsonLd data={organizationJsonLd} />
+      <JsonLd data={websiteJsonLd} />
+      <JsonLd data={softwareApplicationJsonLd} />
+
       <section id="hero" className="bg-accent">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 pt-36 pb-20 md:px-10 md:pt-44 md:pb-28 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
