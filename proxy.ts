@@ -5,7 +5,7 @@ import { getSessionCookie } from "better-auth/cookies";
 const protectedPrefixes = ["/new", "/recents", "/settings", "/upgrade", "/chat"];
 
 // Pages only meant for signed-out visitors; bounce authenticated users to the app.
-const authOnlyRoutes = ["/sign-in", "/sign-up"];
+const authOnlyRoutes = ["/", "/sign-in", "/sign-up"];
 
 function isProtectedRoute(pathname: string) {
   return protectedPrefixes.some(
