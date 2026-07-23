@@ -6,7 +6,7 @@ import { getSubscription, isProStatus } from "./subscription";
 export const FREE_DOCUMENT_LIMIT = 2;
 export const FREE_MESSAGE_LIMIT = 10;
 
-interface LimitCheck {
+export interface LimitCheck {
   allowed: boolean;
   used: number;
   limit: number;
