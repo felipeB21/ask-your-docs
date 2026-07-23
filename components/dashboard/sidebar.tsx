@@ -24,6 +24,7 @@ import { NavUser } from "./nav-user";
 import { NavSecondary } from "./nav-secondary";
 import { NavProjects } from "./nav-projects";
 import { useChats } from "@/hooks/use-chats";
+import type { LimitCheck } from "@/lib/limits";
 
 const navMain = [
   { title: "New Chat", url: "new", icon: Plus, isActive: true },
@@ -46,9 +47,18 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     createdAt: Date;
     updatedAt: Date;
   };
+  plan: "free" | "pro";
+  documentLimit: LimitCheck;
+  messageLimit: LimitCheck;
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({
+  user,
+  plan,
+  documentLimit,
+  messageLimit,
+  ...props
+}: AppSidebarProps) {
   const { data: chats, isLoading } = useChats();
 
   const chatItems = (chats ?? []).map((chat) => ({
@@ -72,7 +82,12 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser
+          user={user}
+          plan={plan}
+          documentLimit={documentLimit}
+          messageLimit={messageLimit}
+        />
       </SidebarFooter>
     </Sidebar>
   );

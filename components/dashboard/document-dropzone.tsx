@@ -8,6 +8,7 @@ interface DocumentDropzoneProps {
   onFileSelected: (file: File) => void;
   isUploading?: boolean;
   disabled?: boolean;
+  externalError?: string | null;
 }
 
 const ACCEPTED_TYPES = [
@@ -19,6 +20,7 @@ export function DocumentDropzone({
   onFileSelected,
   isUploading,
   disabled,
+  externalError,
 }: DocumentDropzoneProps) {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +103,11 @@ export function DocumentDropzone({
         </div>
       </label>
 
-      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      {(error || externalError) && (
+        <p className="mt-2 text-sm text-destructive">
+          {error || externalError}
+        </p>
+      )}
     </div>
   );
 }

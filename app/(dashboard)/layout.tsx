@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Lora, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
 import { requireUser } from "@/lib/session-helper";
+import { getSubscription, isProStatus } from "@/lib/subscription";
+import { checkDocumentLimit, checkMessageLimit } from "@/lib/limits";
 import {
   SidebarInset,
   SidebarProvider,
@@ -31,6 +33,12 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await requireUser();
+  const [subscription, documentLimit, messageLimit] = await Promise.all([
+    getSubscription(user.id),
+    checkDocumentLimit(user.id),
+    checkMessageLimit(user.id),
+  ]);
+  const plan = isProStatus(subscription?.status) ? "pro" : "free";
 
   return (
     <html lang="en">
@@ -39,7 +47,12 @@ export default async function RootLayout({
       >
         <Providers>
           <SidebarProvider className="h-svh">
-            <AppSidebar user={user} />
+            <AppSidebar
+              user={user}
+              plan={plan}
+              documentLimit={documentLimit}
+              messageLimit={messageLimit}
+            />
             <SidebarInset className="min-h-0">
               <div className="flex items-center gap-3 px-10 pt-5 shrink-0">
                 <SidebarTrigger />

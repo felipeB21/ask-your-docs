@@ -18,7 +18,7 @@ export default function ChatPanel({ chatId }: { chatId: string }) {
   const { data: history, isPending } = useMessages(chatId);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, setMessages, status } = useChat({
+  const { messages, sendMessage, setMessages, status, error } = useChat({
     transport: new TextStreamChatTransport({
       api: `/api/chats/${chatId}/messages`,
     }),
@@ -80,6 +80,14 @@ export default function ChatPanel({ chatId }: { chatId: string }) {
           <div className="flex justify-start">
             <div className="rounded-lg px-2 py-1 text-muted-foreground animate-pulse">
               Thinking...
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex justify-start">
+            <div className="rounded-lg px-2 py-1 text-destructive">
+              {error.message || "Something went wrong. Please try again."}
             </div>
           </div>
         )}

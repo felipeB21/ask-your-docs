@@ -6,7 +6,7 @@ import { DocumentDropzone } from "./document-dropzone";
 
 export function NewChatUpload() {
   const router = useRouter();
-  const { mutate, isPending } = useUploadDocument();
+  const { mutate, isPending, error } = useUploadDocument();
 
   const handleFileSelected = (file: File) => {
     mutate(
@@ -23,6 +23,7 @@ export function NewChatUpload() {
     <DocumentDropzone
       onFileSelected={handleFileSelected}
       isUploading={isPending}
+      externalError={error?.message}
     />
   );
 }

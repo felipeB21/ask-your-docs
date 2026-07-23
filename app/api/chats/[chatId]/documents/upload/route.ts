@@ -4,6 +4,7 @@ import { processDocument } from "@/lib/documents/process";
 import { db } from "@/db";
 import { chats } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { checkDocumentLimit } from "@/lib/limits";
 
 type Context = {
   params: Promise<{ chatId: string }>;
@@ -33,6 +34,17 @@ export async function POST(req: NextRequest, context: Context) {
       return NextResponse.json(
         { error: "The specified chat does not exist" },
         { status: 404 },
+      );
+    }
+
+    const documentLimit = await checkDocumentLimit(userId);
+    if (!documentLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `You've reached today's ${documentLimit.limit}-document limit on the Free plan. Upgrade to Pro for unlimited uploads.`,
+          code: "LIMIT_EXCEEDED",
+        },
+        { status: 429 },
       );
     }
 

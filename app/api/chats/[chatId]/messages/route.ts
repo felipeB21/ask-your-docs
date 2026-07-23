@@ -15,6 +15,7 @@ import {
 import { google } from "@ai-sdk/google";
 import { CHAT_MODEL } from "@/lib/ai-config";
 import { nanoid } from "nanoid";
+import { checkMessageLimit } from "@/lib/limits";
 
 type Context = {
   params: Promise<{ chatId: string }>;
@@ -50,6 +51,17 @@ export async function POST(req: NextRequest, context: Context) {
       return NextResponse.json(
         { error: "The specified chat does not exist" },
         { status: 404 },
+      );
+    }
+
+    const messageLimit = await checkMessageLimit(userId);
+    if (!messageLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `You've reached today's ${messageLimit.limit}-message limit on the Free plan. Upgrade to Pro for unlimited messages.`,
+          code: "LIMIT_EXCEEDED",
+        },
+        { status: 429 },
       );
     }
 
