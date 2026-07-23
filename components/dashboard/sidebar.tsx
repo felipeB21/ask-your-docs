@@ -61,12 +61,6 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const { data: chats, isLoading } = useChats();
 
-  const chatItems = (chats ?? []).map((chat) => ({
-    id: chat.id,
-    name: chat.title,
-    url: chat.id,
-  }));
-
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -78,7 +72,7 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMain} />
-        <NavProjects projects={chatItems} isLoading={isLoading} />
+        <NavProjects chats={chats ?? []} isLoading={isLoading} />
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

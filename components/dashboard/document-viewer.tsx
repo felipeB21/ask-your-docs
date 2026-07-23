@@ -1,11 +1,20 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { FileText, Inbox } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { useChatDocument } from "@/hooks/use-chat-documents";
 import { useDocumentUrl } from "@/hooks/use-document";
 
 const PdfViewer = dynamic(() => import("./pdf-viewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center rounded-xl  text-sm text-muted-foreground">
+      Loading viewer...
+    </div>
+  ),
+});
+
+const DocxViewer = dynamic(() => import("./docx-viewer"), {
   ssr: false,
   loading: () => (
     <div className="flex h-full items-center justify-center rounded-xl  text-sm text-muted-foreground">
@@ -59,14 +68,5 @@ export default function DocumentViewer({
     return <PdfViewer url={documentUrl.data.signedUrl} onExplain={onExplain} />;
   }
 
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 rounded-xl  p-8 text-center">
-      <FileText className="h-8 w-8 text-muted-foreground" />
-      <p className="text-sm text-muted-foreground">
-        Preview isn&apos;t available for Word documents.
-        <br />
-        You can ask the AI about its content in the chat.
-      </p>
-    </div>
-  );
+  return <DocxViewer key={document.id} url={documentUrl.data.signedUrl} />;
 }

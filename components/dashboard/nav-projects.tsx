@@ -1,38 +1,34 @@
 "use client";
 
-import { MoreHorizontal, Pencil, Star, Trash2 } from "lucide-react";
+import { MoreHorizontal, Star } from "lucide-react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuAction,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
+import { ChatActionsMenu } from "./chat/chat-actions-menu";
+import type { Chat } from "@/hooks/use-chats";
 
 export function NavProjects({
-  projects,
+  chats,
   isLoading,
 }: {
-  projects: {
-    id: string;
-    name: string;
-    url: string;
-  }[];
+  chats: Chat[];
   isLoading?: boolean;
 }) {
   const { isMobile } = useSidebar();
+
+  const sortedChats = [...chats].sort((a, b) =>
+    a.isFavorite === b.isFavorite ? 0 : a.isFavorite ? -1 : 1,
+  );
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -46,46 +42,33 @@ export function NavProjects({
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))
-          : projects.map((item) => (
-              <SidebarMenuItem key={item.id}>
+          : sortedChats.map((chat) => (
+              <SidebarMenuItem key={chat.id}>
                 <SidebarMenuButton
                   render={
-                    <Link href={`/chat/${item.url}`}>
-                      <span>{item.name}</span>
+                    <Link href={`/chat/${chat.id}`}>
+                      <span>{chat.title}</span>
                     </Link>
                   }
                 />
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <SidebarMenuAction showOnHover>
-                        <MoreHorizontal />
-                        <span className="sr-only">More</span>
-                      </SidebarMenuAction>
-                    }
-                  />
+                {chat.isFavorite && (
+                  <SidebarMenuBadge className="group-hover/menu-item:hidden">
+                    <Star className="size-3.5 fill-amber-500 text-amber-500" />
+                  </SidebarMenuBadge>
+                )}
 
-                  <DropdownMenuContent
-                    className="w-48"
-                    side={isMobile ? "bottom" : "right"}
-                    align={isMobile ? "end" : "start"}
-                  >
-                    <DropdownMenuItem>
-                      <Star className="text-muted-foreground" />
-                      <span>Highlight</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Pencil className="text-muted-foreground" />
-                      <span>Edit</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">
-                      <Trash2 className="text-muted-foreground" />
-                      <span>Delete Project</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <ChatActionsMenu
+                  chat={chat}
+                  side={isMobile ? "bottom" : "right"}
+                  align={isMobile ? "end" : "start"}
+                  trigger={
+                    <SidebarMenuAction showOnHover>
+                      <MoreHorizontal />
+                      <span className="sr-only">More</span>
+                    </SidebarMenuAction>
+                  }
+                />
               </SidebarMenuItem>
             ))}
       </SidebarMenu>
