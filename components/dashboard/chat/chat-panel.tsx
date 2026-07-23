@@ -4,7 +4,13 @@ import clsx from "clsx";
 import Markdown from "@/components/markdown";
 import { useChat } from "@ai-sdk/react";
 import { TextStreamChatTransport } from "ai";
-import { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { useMessages } from "@/hooks/use-messages";
 import TextareaAutosize from "react-textarea-autosize";
 import {
@@ -13,119 +19,135 @@ import {
   InputGroupButton,
 } from "@/components/ui/input-group";
 
-export default function ChatPanel({ chatId }: { chatId: string }) {
-  const [input, setInput] = useState("");
-  const { data: history, isPending } = useMessages(chatId);
-  const bottomRef = useRef<HTMLDivElement>(null);
+export type ChatPanelHandle = {
+  explainText: (text: string) => void;
+};
 
-  const { messages, sendMessage, setMessages, status } = useChat({
-    transport: new TextStreamChatTransport({
-      api: `/api/chats/${chatId}/messages`,
-    }),
-  });
+const ChatPanel = forwardRef<ChatPanelHandle, { chatId: string }>(
+  function ChatPanel({ chatId }, ref) {
+    const [input, setInput] = useState("");
+    const { data: history, isPending } = useMessages(chatId);
+    const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (history) {
-      setMessages(
-        history.map((m) => ({
-          id: m.id,
-          role: m.role === "ai" ? "assistant" : "user",
-          parts: [{ type: "text", text: m.content ?? "" }],
-        })),
-      );
-    }
-  }, [history, setMessages]);
+    const { messages, sendMessage, setMessages, status } = useChat({
+      transport: new TextStreamChatTransport({
+        api: `/api/chats/${chatId}/messages`,
+      }),
+    });
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, status]);
+    useEffect(() => {
+      if (history) {
+        setMessages(
+          history.map((m) => ({
+            id: m.id,
+            role: m.role === "ai" ? "assistant" : "user",
+            parts: [{ type: "text", text: m.content ?? "" }],
+          })),
+        );
+      }
+    }, [history, setMessages]);
 
-  if (isPending) return null;
+    useEffect(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, status]);
 
-  return (
-    <div className="flex flex-col h-full min-h-0 rounded-xl bg-accent">
-      <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 text-sm chat-scroll">
-        {messages.length === 0 && (
-          <div className="text-center text-muted-foreground mt-10">
-            Start the conversation by asking something.
-          </div>
-        )}
+    useImperativeHandle(ref, () => ({
+      explainText: (text: string) => {
+        sendMessage({
+          text: `Explain the following excerpt from the document:\n\n"${text}"`,
+        });
+      },
+    }));
 
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={clsx(
-              "flex",
-              message.role === "user" ? "justify-end" : "justify-start",
-            )}
-          >
+    if (isPending) return null;
+
+    return (
+      <div className="flex flex-col h-full min-h-0 rounded-xl bg-accent">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6 text-sm chat-scroll">
+          {messages.length === 0 && (
+            <div className="text-center text-muted-foreground mt-10">
+              Start the conversation by asking something.
+            </div>
+          )}
+
+          {messages.map((message) => (
             <div
+              key={message.id}
               className={clsx(
-                "rounded-lg whitespace-pre-wrap wrap-break-word text-pretty",
-                message.role === "user"
-                  ? "bg-accent-foreground p-2 text-primary-foreground max-w-3/4"
-                  : "",
+                "flex",
+                message.role === "user" ? "justify-end" : "justify-start",
               )}
             >
-              {message.parts.map((part, i) =>
-                part.type === "text" ? (
-                  <Markdown key={i} content={part.text} />
-                ) : null,
-              )}
+              <div
+                className={clsx(
+                  "rounded-lg whitespace-pre-wrap wrap-break-word text-pretty",
+                  message.role === "user"
+                    ? "bg-accent-foreground p-2 text-primary-foreground max-w-3/4"
+                    : "",
+                )}
+              >
+                {message.parts.map((part, i) =>
+                  part.type === "text" ? (
+                    <Markdown key={i} content={part.text} />
+                  ) : null,
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {status === "submitted" && (
-          <div className="flex justify-start">
-            <div className="rounded-lg px-2 py-1 text-muted-foreground animate-pulse">
-              Thinking...
+          {status === "submitted" && (
+            <div className="flex justify-start">
+              <div className="rounded-lg px-2 py-1 text-muted-foreground animate-pulse">
+                Thinking...
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div ref={bottomRef} />
-      </div>
+          <div ref={bottomRef} />
+        </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!input.trim()) return;
-          sendMessage({ text: input });
-          setInput("");
-        }}
-        className="shrink-0 border-t p-4"
-      >
-        <InputGroup>
-          <TextareaAutosize
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask something about the document..."
-            disabled={status === "streaming"}
-            minRows={3}
-            maxRows={6}
-            className="w-full resize-none bg-transparent px-3 py-2 text-sm outline-none"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                if (!input.trim()) return;
-                sendMessage({ text: input });
-                setInput("");
-              }
-            }}
-          />
-          <InputGroupAddon align="block-end" className="justify-end">
-            <InputGroupButton
-              type="submit"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!input.trim()) return;
+            sendMessage({ text: input });
+            setInput("");
+          }}
+          className="shrink-0 border-t p-4"
+        >
+          <InputGroup>
+            <TextareaAutosize
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask something about the document..."
               disabled={status === "streaming"}
-              className="h-8 w-24"
-              variant="default"
-            >
-              Send
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
-      </form>
-    </div>
-  );
-}
+              minRows={3}
+              maxRows={6}
+              className="w-full resize-none bg-transparent px-3 py-2 text-sm outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (!input.trim()) return;
+                  sendMessage({ text: input });
+                  setInput("");
+                }
+              }}
+            />
+            <InputGroupAddon align="block-end" className="justify-end">
+              <InputGroupButton
+                type="submit"
+                disabled={status === "streaming"}
+                className="h-8 w-24"
+                variant="default"
+              >
+                Send
+              </InputGroupButton>
+            </InputGroupAddon>
+          </InputGroup>
+        </form>
+      </div>
+    );
+  },
+);
+
+export default ChatPanel;
