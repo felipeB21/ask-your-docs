@@ -46,9 +46,10 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
     createdAt: Date;
     updatedAt: Date;
   };
+  plan: "free" | "pro";
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({ user, plan, ...props }: AppSidebarProps) {
   const { data: chats, isLoading } = useChats();
 
   const chatItems = (chats ?? []).map((chat) => ({
@@ -72,7 +73,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={user} plan={plan} />
       </SidebarFooter>
     </Sidebar>
   );

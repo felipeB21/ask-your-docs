@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   BadgeCheck,
   Bell,
@@ -28,6 +29,7 @@ import {
 
 export function NavUser({
   user,
+  plan,
 }: {
   user: {
     id: string;
@@ -38,6 +40,7 @@ export function NavUser({
     createdAt: Date;
     updatedAt: Date;
   };
+  plan: "free" | "pro";
 }) {
   const { isMobile } = useSidebar();
 
@@ -87,9 +90,9 @@ export function NavUser({
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/upgrade" />}>
                 <Sparkles />
-                Upgrade to Pro
+                {plan === "pro" ? "Manage plan" : "Upgrade to Pro"}
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -100,7 +103,7 @@ export function NavUser({
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/upgrade" />}>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>

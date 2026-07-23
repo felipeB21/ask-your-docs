@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { nanoid } from "nanoid";
 import { processDocument } from "@/lib/documents/process";
 import { chats } from "@/db/schema";
+import { checkDocumentLimit } from "@/lib/limits";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +13,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
     const userId = session.user.id;
+
+    const documentLimit = await checkDocumentLimit(userId);
+    if (!documentLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `You've reached today's ${documentLimit.limit}-document limit on the Free plan. Upgrade to Pro for unlimited uploads.`,
+          code: "LIMIT_EXCEEDED",
+        },
+        { status: 429 },
+      );
+    }
+
     const formData = await req.formData();
 
     const file = formData.get("file");

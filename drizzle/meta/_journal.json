@@ -15,6 +15,13 @@
       "when": 1783671531455,
       "tag": "0001_rare_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784807501991,
+      "tag": "0002_burly_madrox",
+      "breakpoints": true
     }
   ]
 }

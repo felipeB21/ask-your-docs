@@ -18,7 +18,10 @@ async function uploadDocument({ file, chatId }: UploadDocumentParams) {
     : "/api/documents/upload";
 
   const res = await fetch(url, { method: "POST", body: formData });
-  if (!res.ok) throw new Error("Error uploading the document");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ?? "Error uploading the document");
+  }
   return res.json();
 }
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { FileText, Quote } from "lucide-react";
+import { Quote } from "lucide-react";
 import Logo from "../logo";
 
 export function AuthLayout({
@@ -36,7 +36,7 @@ export function AuthLayout({
         <div className="w-full max-w-sm">
           <div className="mb-8 flex flex-col items-center text-center lg:items-start lg:text-left">
             <div className="mb-4 flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm lg:hidden">
-              <FileText className="size-5" />
+              <Logo />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight text-balance">
               {title}
